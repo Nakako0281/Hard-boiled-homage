@@ -6,7 +6,7 @@ import {
   getPlacementStats,
 } from '@/lib/game/placement'
 import { createEmptyGrid } from '@/lib/utils/grid'
-import { Rotation, CellState, UnitCategory } from '@/lib/types/enums'
+import { Rotation, UnitCategory } from '@/lib/types/enums'
 import type { Field } from '@/lib/types/grid'
 import type { Unit, PlacedUnit } from '@/lib/types/unit'
 
