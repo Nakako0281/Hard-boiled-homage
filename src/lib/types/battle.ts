@@ -1,8 +1,11 @@
 import { BattlePhase, Turn, SpecialAttackType } from './enums'
 import type { Field } from './grid'
 import type { PlayerStats, EnemyStats } from './stats'
-import type { Enemy } from './enemy'
 import type { Position } from './position'
+import type { Enemy } from './enemy'
+
+// Re-export Enemy from enemy.ts
+export type { Enemy }
 
 /**
  * 攻撃ログ
