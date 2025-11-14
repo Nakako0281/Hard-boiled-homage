@@ -80,19 +80,17 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
           />
 
           {/* モーダル */}
-          <motion.div
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-4xl bg-[#34495E] rounded-xl p-6 shadow-2xl z-50 overflow-y-auto max-h-[90vh]"
-            style={{
-              position: 'fixed',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: 'spring', duration: 0.3 }}
+          <div
+            className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            style={{ position: 'fixed', inset: 0 }}
           >
+            <motion.div
+              className="w-full max-w-4xl bg-[#34495E] rounded-xl p-6 shadow-2xl overflow-y-auto max-h-[90vh]"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: 'spring', duration: 0.3 }}
+            >
             {/* ヘッダー */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-white font-bold text-2xl">
@@ -192,6 +190,7 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
               </Button>
             </div>
           </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>

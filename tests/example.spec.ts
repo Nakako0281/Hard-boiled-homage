@@ -40,4 +40,37 @@ test.describe('Hard-Boiled Homage E2E Tests', () => {
     await expect(jackCharacter).toBeVisible({ timeout: 5000 })
     await expect(gapurinoCharacter).toBeVisible({ timeout: 5000 })
   })
+
+  test('selecting character and clicking confirm button triggers alert', async ({ page }) => {
+    await page.goto('/')
+
+    // アラートダイアログのハンドラを設定
+    let alertMessage = ''
+    page.on('dialog', async (dialog) => {
+      alertMessage = dialog.message()
+      await dialog.accept()
+    })
+
+    // 新規ゲームボタンをクリック
+    const newGameButton = page.getByRole('button', { name: /新規ゲーム/i })
+    await newGameButton.click()
+
+    // キャラクター選択モーダルが表示されるまで待つ
+    await page.waitForSelector('text=/キャラクター選択/i', { timeout: 5000 })
+
+    // ジャック刑事を選択
+    const jackCard = page.locator('text=/ジャック刑事/i').first()
+    await jackCard.click()
+
+    // 決定ボタンをクリック
+    const confirmButton = page.getByRole('button', { name: /決定/i })
+    await confirmButton.click()
+
+    // アラートが表示されたか確認（少し待つ）
+    await page.waitForTimeout(1000)
+
+    // アラートメッセージが正しいか確認
+    expect(alertMessage).toContain('キャラクター')
+    expect(alertMessage).toContain('jack')
+  })
 })
