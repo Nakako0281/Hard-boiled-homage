@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import React, { useState } from 'react'
 import { Button } from '@/components/common/Button'
 import type { Position } from '@/lib/types/position'
-import type { Field } from '@/lib/types/field'
+import type { Field } from '@/lib/types/grid'
 
 export interface PlacementUnit {
   id: string
@@ -14,7 +14,6 @@ export interface PlacementScreenProps {
   field: Field
   availableUnits: PlacementUnit[]
   onPlaceUnit: (unitId: string, position: Position) => boolean
-  onRemoveUnit: (position: Position) => void
   onStartBattle: () => void
   onBack?: () => void
 }
@@ -23,7 +22,6 @@ export const PlacementScreen: React.FC<PlacementScreenProps> = ({
   field,
   availableUnits,
   onPlaceUnit,
-  onRemoveUnit,
   onStartBattle,
   onBack,
 }) => {

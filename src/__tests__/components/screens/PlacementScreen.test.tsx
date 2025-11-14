@@ -21,7 +21,6 @@ describe('PlacementScreen', () => {
         field={mockField}
         availableUnits={mockUnits}
         onPlaceUnit={() => true}
-        onRemoveUnit={() => {}}
         onStartBattle={() => {}}
       />
     )
@@ -35,7 +34,6 @@ describe('PlacementScreen', () => {
         field={mockField}
         availableUnits={mockUnits}
         onPlaceUnit={() => true}
-        onRemoveUnit={() => {}}
         onStartBattle={() => {}}
       />
     )
@@ -49,7 +47,6 @@ describe('PlacementScreen', () => {
         field={mockField}
         availableUnits={mockUnits}
         onPlaceUnit={() => true}
-        onRemoveUnit={() => {}}
         onStartBattle={() => {}}
       />
     )
@@ -64,7 +61,6 @@ describe('PlacementScreen', () => {
         field={mockField}
         availableUnits={mockUnits}
         onPlaceUnit={() => true}
-        onRemoveUnit={() => {}}
         onStartBattle={() => {}}
       />
     )
@@ -82,7 +78,6 @@ describe('PlacementScreen', () => {
         field={mockField}
         availableUnits={emptyUnits}
         onPlaceUnit={() => true}
-        onRemoveUnit={() => {}}
         onStartBattle={() => {}}
       />
     )
@@ -97,7 +92,6 @@ describe('PlacementScreen', () => {
         field={mockField}
         availableUnits={mockUnits}
         onPlaceUnit={() => true}
-        onRemoveUnit={() => {}}
         onStartBattle={() => {}}
       />
     )
@@ -113,7 +107,6 @@ describe('PlacementScreen', () => {
         field={mockField}
         availableUnits={mockUnits}
         onPlaceUnit={() => true}
-        onRemoveUnit={() => {}}
         onStartBattle={handleStartBattle}
       />
     )
@@ -131,7 +124,6 @@ describe('PlacementScreen', () => {
         field={mockField}
         availableUnits={mockUnits}
         onPlaceUnit={() => true}
-        onRemoveUnit={() => {}}
         onStartBattle={() => {}}
         onBack={handleBack}
       />

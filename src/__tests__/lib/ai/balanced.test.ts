@@ -20,20 +20,27 @@ describe('Balanced AI', () => {
             .map((_, x) => ({
               position: { x, y },
               state: CellState.UNEXPLORED,
-              hasUnit: false,
+              unitId: undefined,
+              isRevealed: false,
             }))
         ),
+      placedUnits: [],
     }
 
     baseState = {
       field: mockField,
       discoveredCells: [],
-      lastHitPosition: null,
+      lastHitPosition: undefined,
+      currentHP: 100,
+      maxHP: 100,
       currentSP: 100,
       maxSP: 100,
       enemyHP: 100,
       enemyMaxHP: 100,
+      placedUnits: [],
+      remainingUnits: [],
       patternIndex: 0,
+      consecutiveMisses: 0,
     }
   })
 

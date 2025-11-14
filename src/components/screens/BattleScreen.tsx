@@ -5,7 +5,7 @@ import { TurnIndicator } from '@/components/ui/TurnIndicator'
 import { StatusPanel } from '@/components/ui/StatusPanel'
 import { AttackButton } from '@/components/ui/AttackButton'
 import { SpecialAttackPanel, SpecialAttack } from '@/components/ui/SpecialAttackPanel'
-import type { Field } from '@/lib/types/field'
+import type { Field } from '@/lib/types/grid'
 import { Turn } from '@/lib/types/enums'
 import type { Position } from '@/lib/types/position'
 
@@ -63,7 +63,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setShowSpecialPanel(true)
   }
 
-  const handleSelectSpecialAttack = (unitId: string) => {
+  const handleSelectSpecialAttack = (_unitId: string) => {
     if (onSpecialAttack) {
       // 特殊攻撃選択後、攻撃対象を選ぶモードに
       setShowSpecialPanel(false)

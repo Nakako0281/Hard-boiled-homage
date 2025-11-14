@@ -20,7 +20,6 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({
   maxSp,
   unitsRemaining,
   isCurrentTurn,
-  isPlayer = true,
 }) => {
   const hpPercentage = (hp / maxHp) * 100
   const spPercentage = (sp / maxSp) * 100

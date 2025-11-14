@@ -9,3 +9,5 @@ export type { ModalProps } from './Modal'
 
 export { Loading } from './Loading'
 export type { LoadingProps } from './Loading'
+
+export { ErrorBoundary } from './ErrorBoundary'

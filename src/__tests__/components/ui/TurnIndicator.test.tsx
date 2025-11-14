@@ -45,14 +45,14 @@ describe('TurnIndicator', () => {
   })
 
   it('プレイヤーターンの背景色が青系になる', () => {
-    const { container } = render(<TurnIndicator currentTurn={Turn.PLAYER} />)
+    render(<TurnIndicator currentTurn={Turn.PLAYER} />)
 
     const turnDisplay = screen.getByText('あなたのターン')
     expect(turnDisplay).toHaveClass('bg-[#2980B9]')
   })
 
   it('敵ターンの背景色が赤系になる', () => {
-    const { container } = render(<TurnIndicator currentTurn={Turn.ENEMY} />)
+    render(<TurnIndicator currentTurn={Turn.ENEMY} />)
 
     const turnDisplay = screen.getByText('敵のターン')
     expect(turnDisplay).toHaveClass('bg-[#C0392B]')
