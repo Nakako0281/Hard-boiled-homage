@@ -81,7 +81,7 @@ export const CharacterSelect: React.FC<CharacterSelectProps> = ({
 
           {/* モーダル */}
           <motion.div
-            className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-4xl bg-[#34495E] rounded-xl p-6 shadow-2xl z-50 overflow-y-auto max-h-screen"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-4xl bg-[#34495E] rounded-xl p-6 shadow-2xl z-50 overflow-y-auto max-h-[90vh]"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}

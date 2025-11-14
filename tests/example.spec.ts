@@ -14,13 +14,13 @@ test.describe('Hard-Boiled Homage E2E Tests', () => {
 
   test('new game button is visible', async ({ page }) => {
     await page.goto('/')
-    const newGameButton = page.getByRole('button', { name: /新しいゲーム/i })
+    const newGameButton = page.getByRole('button', { name: /新規ゲーム/i })
     await expect(newGameButton).toBeVisible()
   })
 
   test('clicking new game button opens character select', async ({ page }) => {
     await page.goto('/')
-    const newGameButton = page.getByRole('button', { name: /新しいゲーム/i })
+    const newGameButton = page.getByRole('button', { name: /新規ゲーム/i })
     await newGameButton.click()
 
     // キャラクター選択モーダルが表示される
@@ -30,7 +30,7 @@ test.describe('Hard-Boiled Homage E2E Tests', () => {
 
   test('character selection displays available characters', async ({ page }) => {
     await page.goto('/')
-    const newGameButton = page.getByRole('button', { name: /新しいゲーム/i })
+    const newGameButton = page.getByRole('button', { name: /新規ゲーム/i })
     await newGameButton.click()
 
     // キャラクターが表示される
