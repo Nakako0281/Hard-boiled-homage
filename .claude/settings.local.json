@@ -15,7 +15,8 @@
       "Bash(git commit:*)",
       "Bash(pkill -f \"npm test\")",
       "Bash(powershell -Command \"$content = Get-Content ''src/__tests__/lib/ai/strategic.test.ts'' -Raw; $content = $content -replace ''(?ms)(enemyMaxHP: 100,)(\\s+)(patternIndex: 0,)'', ''$1$2currentHP: 100,$2maxHP: 100,$2placedUnits: [],$2remainingUnits: [],$2patternIndex: 0,$2consecutiveMisses: 0,''; Set-Content ''src/__tests__/lib/ai/strategic.test.ts'' -Value $content\")",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []
