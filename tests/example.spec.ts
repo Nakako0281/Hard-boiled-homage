@@ -41,15 +41,8 @@ test.describe('Hard-Boiled Homage E2E Tests', () => {
     await expect(gapurinoCharacter).toBeVisible({ timeout: 5000 })
   })
 
-  test('selecting character and clicking confirm button triggers alert', async ({ page }) => {
+  test('selecting character and clicking confirm transitions to enemy select', async ({ page }) => {
     await page.goto('/')
-
-    // アラートダイアログのハンドラを設定
-    let alertMessage = ''
-    page.on('dialog', async (dialog) => {
-      alertMessage = dialog.message()
-      await dialog.accept()
-    })
 
     // 新規ゲームボタンをクリック
     const newGameButton = page.getByRole('button', { name: /新規ゲーム/i })
@@ -66,11 +59,12 @@ test.describe('Hard-Boiled Homage E2E Tests', () => {
     const confirmButton = page.getByRole('button', { name: /決定/i })
     await confirmButton.click()
 
-    // アラートが表示されたか確認（少し待つ）
-    await page.waitForTimeout(1000)
+    // 敵選択画面が表示されることを確認
+    const enemySelectTitle = page.getByText(/敵選択/i)
+    await expect(enemySelectTitle).toBeVisible({ timeout: 5000 })
 
-    // アラートメッセージが正しいか確認
-    expect(alertMessage).toContain('キャラクター')
-    expect(alertMessage).toContain('jack')
+    // 敵が表示されることを確認
+    const carrierEnemy = page.getByText(/運び屋A/i)
+    await expect(carrierEnemy).toBeVisible()
   })
 })
