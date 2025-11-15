@@ -84,14 +84,18 @@ function App() {
       maxHp: 100,
       sp: 100,
       maxSp: 100,
+      at: 10,
+      df: 5,
       unitsRemaining: 3,
     },
     enemyStats: {
       name: '運び屋A',
-      hp: 80,
-      maxHp: 80,
-      sp: 50,
-      maxSp: 50,
+      hp: 150,
+      maxHp: 150,
+      sp: 80,
+      maxSp: 80,
+      at: 12,
+      df: 8,
       unitsRemaining: 3,
     },
   })
@@ -225,11 +229,13 @@ function App() {
     // 既に攻撃済みの場合はスキップ
     if (cell.state !== CellState.UNEXPLORED) return
 
+    // ヒット判定
+    const isHit = !!cell.unitId
+
     // 攻撃処理
     const newCells = battleState.enemyField.cells.map((row, y) =>
       row.map((c, x) => {
         if (x === position.x && y === position.y) {
-          const isHit = !!c.unitId
           return {
             ...c,
             state: isHit ? CellState.HIT : CellState.MISS,
@@ -239,11 +245,16 @@ function App() {
       })
     )
 
-    // ヒット判定とダメージ
-    const isHit = !!cell.unitId
+    // ダメージ計算（MISSの場合のみ）
+    let damage = 0
+    if (!isHit) {
+      // 直接ダメージ計算: AT - DF（最低1ダメージ保証）
+      damage = Math.max(1, battleState.playerStats.at - battleState.enemyStats.df)
+    }
+
     const newEnemyStats = {
       ...battleState.enemyStats,
-      hp: isHit ? Math.max(0, battleState.enemyStats.hp - 10) : battleState.enemyStats.hp,
+      hp: Math.max(0, battleState.enemyStats.hp - damage),
     }
 
     setBattleState((prev) => ({
@@ -261,8 +272,11 @@ function App() {
       return
     }
 
-    // 自動的にターン終了
-    setTimeout(() => handleEndTurn(), 500)
+    // HITの場合は連続攻撃可能（ターン終了しない）
+    // MISSの場合はターン終了
+    if (!isHit) {
+      setTimeout(() => handleEndTurn(), 500)
+    }
   }
 
   const handleSpecialAttack = (attackId: string, position: Position) => {
@@ -275,7 +289,7 @@ function App() {
     if (battleState.playerStats.sp < attack.spCost) return
 
     let newCells = [...battleState.enemyField.cells.map((row) => [...row])]
-    let totalDamage = 0
+    let missCount = 0 // MISSの数をカウント
 
     // 特殊攻撃の種類に応じて処理
     switch (attackId) {
@@ -297,14 +311,15 @@ function App() {
                 ...newCells[targetY][targetX],
                 state: isHit ? CellState.HIT : CellState.MISS,
               }
-              if (isHit) totalDamage += 10
+              // MISSの場合のみカウント
+              if (!isHit) missCount++
             }
           }
         }
         break
       }
       case 'power-shot': {
-        // 強力な一撃（30ダメージ）
+        // 強力な一撃
         const cell = newCells[position.y][position.x]
         if (cell.state === CellState.UNEXPLORED) {
           const isHit = !!cell.unitId
@@ -312,12 +327,13 @@ function App() {
             ...cell,
             state: isHit ? CellState.HIT : CellState.MISS,
           }
-          if (isHit) totalDamage = 30
+          // MISSの場合のみカウント（強力な一撃は3倍ダメージ）
+          if (!isHit) missCount = 3
         }
         break
       }
       case 'scan': {
-        // 5x5範囲索敵
+        // 5x5範囲索敵（ダメージなし）
         for (let dy = -2; dy <= 2; dy++) {
           for (let dx = -2; dx <= 2; dx++) {
             const targetY = position.y + dy
@@ -340,6 +356,10 @@ function App() {
         break
       }
     }
+
+    // ダメージ計算（MISSの場合のみ、基本ダメージ × MISS回数）
+    const baseDamage = Math.max(1, battleState.playerStats.at - battleState.enemyStats.df)
+    const totalDamage = baseDamage * missCount
 
     // ステータス更新（SP消費とダメージ）
     const newEnemyStats = {
@@ -368,7 +388,7 @@ function App() {
       return
     }
 
-    // 自動的にターン終了
+    // 特殊攻撃は必ずターン終了（HITしても連続攻撃不可）
     setTimeout(() => handleEndTurn(), 500)
   }
 
@@ -404,10 +424,11 @@ function App() {
         const targetPos = unexploredCells[randomIndex]
 
         const cell = battleState.playerField.cells[targetPos.y][targetPos.x]
+        const isHit = !!cell.unitId
+
         const newCells = battleState.playerField.cells.map((row, y) =>
           row.map((c, x) => {
             if (x === targetPos.x && y === targetPos.y) {
-              const isHit = !!c.unitId
               return {
                 ...c,
                 state: isHit ? CellState.HIT : CellState.MISS,
@@ -417,12 +438,16 @@ function App() {
           })
         )
 
-        const isHit = !!cell.unitId
+        // ダメージ計算（MISSの場合のみ）
+        let damage = 0
+        if (!isHit) {
+          // 直接ダメージ計算: AT - DF（最低1ダメージ保証）
+          damage = Math.max(1, battleState.enemyStats.at - battleState.playerStats.df)
+        }
+
         const newPlayerStats = {
           ...battleState.playerStats,
-          hp: isHit
-            ? Math.max(0, battleState.playerStats.hp - 10)
-            : battleState.playerStats.hp,
+          hp: Math.max(0, battleState.playerStats.hp - damage),
         }
 
         setBattleState((prev) => ({
