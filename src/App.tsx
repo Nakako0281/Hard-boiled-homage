@@ -207,16 +207,37 @@ function App() {
       }
     })
 
-    // 配置フィールドを戦闘フィールドにコピー
-    setBattleState((prev) => ({
-      ...prev,
+    // 配置フィールドを戦闘フィールドにコピー＆ステータスを初期値にリセット
+    setBattleState({
       playerField: placementField,
       enemyField: {
         size: { width: 10, height: 10 },
         cells: enemyGrid,
         placedUnits: [],
       },
-    }))
+      currentTurn: Turn.PLAYER,
+      turnNumber: 1,
+      playerStats: {
+        name: 'ジャック刑事',
+        hp: 100,
+        maxHp: 100,
+        sp: 100,
+        maxSp: 100,
+        at: 10,
+        df: 5,
+        unitsRemaining: 3,
+      },
+      enemyStats: {
+        name: '運び屋A',
+        hp: 150,
+        maxHp: 150,
+        sp: 80,
+        maxSp: 80,
+        at: 12,
+        df: 8,
+        unitsRemaining: 3,
+      },
+    })
 
     setGamePhase('battle')
   }
@@ -525,6 +546,19 @@ function App() {
   }
 
   const handleResultRetry = () => {
+    // 配置フィールドのセル状態をリセット
+    const resetCells = placementField.cells.map(row =>
+      row.map(cell => ({
+        ...cell,
+        state: CellState.UNEXPLORED
+      }))
+    )
+
+    setPlacementField({
+      ...placementField,
+      cells: resetCells
+    })
+
     // 配置画面に戻る
     setGamePhase('placement')
   }
