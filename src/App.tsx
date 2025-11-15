@@ -48,13 +48,13 @@ function App() {
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null)
   const [selectedEnemy, setSelectedEnemy] = useState<string | null>(null)
 
-  const [placementField] = useState(() => ({
+  const [placementField, setPlacementField] = useState(() => ({
     size: { width: 10, height: 10 },
     cells: createEmptyGrid({ width: 10, height: 10 }),
     placedUnits: [],
   }))
 
-  const [availableUnits] = useState([
+  const [availableUnits, setAvailableUnits] = useState([
     { id: 'unit1', name: '歩兵部隊', placed: false },
     { id: 'unit2', name: '装甲車', placed: false },
     { id: 'unit3', name: '狙撃手', placed: false },
@@ -63,6 +63,19 @@ function App() {
   const handleNewGame = (characterId: string) => {
     console.log('New game started with character:', characterId)
     setSelectedCharacter(characterId)
+
+    // 配置フィールドとユニットをリセット
+    setPlacementField({
+      size: { width: 10, height: 10 },
+      cells: createEmptyGrid({ width: 10, height: 10 }),
+      placedUnits: [],
+    })
+    setAvailableUnits([
+      { id: 'unit1', name: '歩兵部隊', placed: false },
+      { id: 'unit2', name: '装甲車', placed: false },
+      { id: 'unit3', name: '狙撃手', placed: false },
+    ])
+
     setGamePhase('enemySelect')
   }
 
@@ -73,7 +86,34 @@ function App() {
   }
 
   const handlePlaceUnit = (unitId: string, position: Position): boolean => {
-    console.log('Place unit:', unitId, 'at', position)
+    // 指定された位置が既に使用されているかチェック
+    const cell = placementField.cells[position.y]?.[position.x]
+    if (!cell || cell.unitId) {
+      return false
+    }
+
+    // グリッドを更新
+    const newCells = placementField.cells.map((row, y) =>
+      row.map((cell, x) => {
+        if (x === position.x && y === position.y) {
+          return { ...cell, unitId }
+        }
+        return cell
+      })
+    )
+
+    setPlacementField({
+      ...placementField,
+      cells: newCells,
+    })
+
+    // ユニットの配置状態を更新
+    setAvailableUnits((units) =>
+      units.map((unit) =>
+        unit.id === unitId ? { ...unit, placed: true } : unit
+      )
+    )
+
     return true
   }
 
