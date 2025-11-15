@@ -1,7 +1,10 @@
 import { ErrorBoundary } from './components/common/ErrorBoundary'
 import { TitleScreen } from './components/screens/TitleScreen'
 import { EnemySelect, type Enemy } from './components/screens/EnemySelect'
+import { PlacementScreen } from './components/screens/PlacementScreen'
+import { createEmptyGrid } from './lib/utils/grid'
 import { useState } from 'react'
+import type { Position } from './lib/types/position'
 
 type GamePhase = 'title' | 'enemySelect' | 'placement' | 'battle' | 'result'
 
@@ -45,6 +48,18 @@ function App() {
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null)
   const [selectedEnemy, setSelectedEnemy] = useState<string | null>(null)
 
+  const [placementField] = useState(() => ({
+    size: { width: 10, height: 10 },
+    cells: createEmptyGrid({ width: 10, height: 10 }),
+    placedUnits: [],
+  }))
+
+  const [availableUnits] = useState([
+    { id: 'unit1', name: '歩兵部隊', placed: false },
+    { id: 'unit2', name: '装甲車', placed: false },
+    { id: 'unit3', name: '狙撃手', placed: false },
+  ])
+
   const handleNewGame = (characterId: string) => {
     console.log('New game started with character:', characterId)
     setSelectedCharacter(characterId)
@@ -54,14 +69,27 @@ function App() {
   const handleEnemySelect = (enemyId: string) => {
     console.log('Enemy selected:', enemyId)
     setSelectedEnemy(enemyId)
-    // TODO: 次は部隊配置画面に遷移
-    alert(`敵「${enemyId}」を選択しました。次は部隊配置画面に進みます（未実装）`)
+    setGamePhase('placement')
+  }
+
+  const handlePlaceUnit = (unitId: string, position: Position): boolean => {
+    console.log('Place unit:', unitId, 'at', position)
+    return true
+  }
+
+  const handleStartBattle = () => {
+    console.log('Start battle')
+    alert('戦闘画面はまだ実装されていません')
   }
 
   const handleBackToTitle = () => {
     setGamePhase('title')
     setSelectedCharacter(null)
     setSelectedEnemy(null)
+  }
+
+  const handleBackToEnemySelect = () => {
+    setGamePhase('enemySelect')
   }
 
   return (
@@ -75,6 +103,15 @@ function App() {
             enemies={ENEMIES}
             onSelectEnemy={handleEnemySelect}
             onBack={handleBackToTitle}
+          />
+        )}
+        {gamePhase === 'placement' && (
+          <PlacementScreen
+            field={placementField}
+            availableUnits={availableUnits}
+            onPlaceUnit={handlePlaceUnit}
+            onStartBattle={handleStartBattle}
+            onBack={handleBackToEnemySelect}
           />
         )}
       </div>
