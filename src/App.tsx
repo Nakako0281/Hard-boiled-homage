@@ -2,7 +2,9 @@ import { ErrorBoundary } from './components/common/ErrorBoundary'
 import { TitleScreen } from './components/screens/TitleScreen'
 import { EnemySelect, type Enemy } from './components/screens/EnemySelect'
 import { PlacementScreen } from './components/screens/PlacementScreen'
+import { BattleScreen } from './components/screens/BattleScreen'
 import { createEmptyGrid } from './lib/utils/grid'
+import { Turn } from './lib/types/enums'
 import { useState } from 'react'
 import type { Position } from './lib/types/position'
 
@@ -59,6 +61,38 @@ function App() {
     { id: 'unit2', name: '装甲車', placed: false },
     { id: 'unit3', name: '狙撃手', placed: false },
   ])
+
+  // 戦闘状態
+  const [battleState, setBattleState] = useState({
+    playerField: {
+      size: { width: 10, height: 10 },
+      cells: createEmptyGrid({ width: 10, height: 10 }),
+      placedUnits: [],
+    },
+    enemyField: {
+      size: { width: 10, height: 10 },
+      cells: createEmptyGrid({ width: 10, height: 10 }),
+      placedUnits: [],
+    },
+    currentTurn: Turn.PLAYER,
+    turnNumber: 1,
+    playerStats: {
+      name: 'ジャック刑事',
+      hp: 100,
+      maxHp: 100,
+      sp: 100,
+      maxSp: 100,
+      unitsRemaining: 3,
+    },
+    enemyStats: {
+      name: '運び屋A',
+      hp: 80,
+      maxHp: 80,
+      sp: 50,
+      maxSp: 50,
+      unitsRemaining: 3,
+    },
+  })
 
   const handleNewGame = (characterId: string) => {
     console.log('New game started with character:', characterId)
@@ -119,7 +153,33 @@ function App() {
 
   const handleStartBattle = () => {
     console.log('Start battle')
-    alert('戦闘画面はまだ実装されていません')
+
+    // 配置フィールドを戦闘フィールドにコピー
+    setBattleState((prev) => ({
+      ...prev,
+      playerField: placementField,
+      enemyField: {
+        size: { width: 10, height: 10 },
+        cells: createEmptyGrid({ width: 10, height: 10 }),
+        placedUnits: [],
+      },
+    }))
+
+    setGamePhase('battle')
+  }
+
+  const handleAttack = (position: Position) => {
+    console.log('Attack at', position)
+    // TODO: 攻撃処理を実装
+  }
+
+  const handleEndTurn = () => {
+    console.log('End turn')
+    setBattleState((prev) => ({
+      ...prev,
+      currentTurn: prev.currentTurn === Turn.PLAYER ? Turn.ENEMY : Turn.PLAYER,
+      turnNumber: prev.currentTurn === Turn.ENEMY ? prev.turnNumber + 1 : prev.turnNumber,
+    }))
   }
 
   const handleBackToTitle = () => {
@@ -152,6 +212,18 @@ function App() {
             onPlaceUnit={handlePlaceUnit}
             onStartBattle={handleStartBattle}
             onBack={handleBackToEnemySelect}
+          />
+        )}
+        {gamePhase === 'battle' && (
+          <BattleScreen
+            playerField={battleState.playerField}
+            enemyField={battleState.enemyField}
+            currentTurn={battleState.currentTurn}
+            turnNumber={battleState.turnNumber}
+            playerStats={battleState.playerStats}
+            enemyStats={battleState.enemyStats}
+            onAttack={handleAttack}
+            onEndTurn={handleEndTurn}
           />
         )}
       </div>
