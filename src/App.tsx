@@ -4,9 +4,10 @@ import { EnemySelect, type Enemy } from './components/screens/EnemySelect'
 import { PlacementScreen } from './components/screens/PlacementScreen'
 import { BattleScreen } from './components/screens/BattleScreen'
 import { ResultScreen, type BattleResult } from './components/screens/ResultScreen'
+import type { SpecialAttack } from './components/ui/SpecialAttackPanel'
 import { createEmptyGrid } from './lib/utils/grid'
 import { Turn, CellState } from './lib/types/enums'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import type { Position } from './lib/types/position'
 
 type GamePhase = 'title' | 'enemySelect' | 'placement' | 'battle' | 'result'
@@ -94,6 +95,34 @@ function App() {
       unitsRemaining: 3,
     },
   })
+
+  // 利用可能な特殊攻撃（useMemoで動的に計算）
+  const availableSpecialAttacks: SpecialAttack[] = useMemo(
+    () => [
+      {
+        unitId: 'wide-attack',
+        name: '💥 広範囲攻撃',
+        description: '3x3範囲に攻撃',
+        spCost: 30,
+        canUse: battleState.playerStats.sp >= 30,
+      },
+      {
+        unitId: 'power-shot',
+        name: '🎯 強力な一撃',
+        description: '大ダメージ（30HP）',
+        spCost: 25,
+        canUse: battleState.playerStats.sp >= 25,
+      },
+      {
+        unitId: 'scan',
+        name: '🔍 索敵',
+        description: '5x5範囲を明らかにする',
+        spCost: 20,
+        canUse: battleState.playerStats.sp >= 20,
+      },
+    ],
+    [battleState.playerStats.sp]
+  )
 
   const handleNewGame = (characterId: string) => {
     console.log('New game started with character:', characterId)
@@ -224,6 +253,113 @@ function App() {
         cells: newCells,
       },
       enemyStats: newEnemyStats,
+    }))
+
+    // 勝敗判定
+    if (newEnemyStats.hp <= 0) {
+      setTimeout(() => setGamePhase('result'), 500)
+      return
+    }
+
+    // 自動的にターン終了
+    setTimeout(() => handleEndTurn(), 500)
+  }
+
+  const handleSpecialAttack = (attackId: string, position: Position) => {
+    if (battleState.currentTurn !== Turn.PLAYER) return
+
+    const attack = availableSpecialAttacks.find((a) => a.unitId === attackId)
+    if (!attack) return
+
+    // SP不足チェック
+    if (battleState.playerStats.sp < attack.spCost) return
+
+    let newCells = [...battleState.enemyField.cells.map((row) => [...row])]
+    let totalDamage = 0
+
+    // 特殊攻撃の種類に応じて処理
+    switch (attackId) {
+      case 'wide-attack': {
+        // 3x3範囲攻撃
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const targetY = position.y + dy
+            const targetX = position.x + dx
+            if (
+              targetY >= 0 &&
+              targetY < 10 &&
+              targetX >= 0 &&
+              targetX < 10 &&
+              newCells[targetY][targetX].state === CellState.UNEXPLORED
+            ) {
+              const isHit = !!newCells[targetY][targetX].unitId
+              newCells[targetY][targetX] = {
+                ...newCells[targetY][targetX],
+                state: isHit ? CellState.HIT : CellState.MISS,
+              }
+              if (isHit) totalDamage += 10
+            }
+          }
+        }
+        break
+      }
+      case 'power-shot': {
+        // 強力な一撃（30ダメージ）
+        const cell = newCells[position.y][position.x]
+        if (cell.state === CellState.UNEXPLORED) {
+          const isHit = !!cell.unitId
+          newCells[position.y][position.x] = {
+            ...cell,
+            state: isHit ? CellState.HIT : CellState.MISS,
+          }
+          if (isHit) totalDamage = 30
+        }
+        break
+      }
+      case 'scan': {
+        // 5x5範囲索敵
+        for (let dy = -2; dy <= 2; dy++) {
+          for (let dx = -2; dx <= 2; dx++) {
+            const targetY = position.y + dy
+            const targetX = position.x + dx
+            if (
+              targetY >= 0 &&
+              targetY < 10 &&
+              targetX >= 0 &&
+              targetX < 10 &&
+              newCells[targetY][targetX].state === CellState.UNEXPLORED
+            ) {
+              const isHit = !!newCells[targetY][targetX].unitId
+              newCells[targetY][targetX] = {
+                ...newCells[targetY][targetX],
+                state: isHit ? CellState.HIT : CellState.MISS,
+              }
+            }
+          }
+        }
+        break
+      }
+    }
+
+    // ステータス更新（SP消費とダメージ）
+    const newEnemyStats = {
+      ...battleState.enemyStats,
+      hp: Math.max(0, battleState.enemyStats.hp - totalDamage),
+    }
+
+    const newPlayerStats = {
+      ...battleState.playerStats,
+      sp: battleState.playerStats.sp - attack.spCost,
+    }
+
+    setBattleState((prev) => ({
+      ...prev,
+      enemyField: {
+        ...prev.enemyField,
+        cells: newCells,
+      },
+      enemyStats: newEnemyStats,
+      playerStats: newPlayerStats,
     }))
 
     // 勝敗判定
@@ -398,7 +534,9 @@ function App() {
             turnNumber={battleState.turnNumber}
             playerStats={battleState.playerStats}
             enemyStats={battleState.enemyStats}
+            availableSpecialAttacks={availableSpecialAttacks}
             onAttack={handleAttack}
+            onSpecialAttack={handleSpecialAttack}
             onEndTurn={handleEndTurn}
           />
         )}

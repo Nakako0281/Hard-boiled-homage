@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import { GameBoard } from '@/components/game/GameBoard'
 import { TurnIndicator } from '@/components/ui/TurnIndicator'
 import { StatusPanel } from '@/components/ui/StatusPanel'
-import { AttackButton } from '@/components/ui/AttackButton'
 import { SpecialAttackPanel, SpecialAttack } from '@/components/ui/SpecialAttackPanel'
 import type { Field } from '@/lib/types/grid'
 import { Turn } from '@/lib/types/enums'
@@ -46,27 +45,30 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   availableSpecialAttacks = [],
   onAttack,
   onSpecialAttack,
-  onEndTurn,
 }) => {
-  const [attackMode, setAttackMode] = useState<'normal' | 'special'>('normal')
   const [showSpecialPanel, setShowSpecialPanel] = useState(false)
+  const [selectedSpecialAttack, setSelectedSpecialAttack] = useState<string | null>(null)
 
   const isPlayerTurn = currentTurn === Turn.PLAYER
 
-  const handleAttackButtonClick = () => {
-    setAttackMode('normal')
-    setShowSpecialPanel(false)
-  }
-
   const handleSpecialButtonClick = () => {
-    setAttackMode('special')
     setShowSpecialPanel(true)
   }
 
-  const handleSelectSpecialAttack = (_unitId: string) => {
-    if (onSpecialAttack) {
-      // 特殊攻撃選択後、攻撃対象を選ぶモードに
-      setShowSpecialPanel(false)
+  const handleSelectSpecialAttack = (unitId: string) => {
+    setSelectedSpecialAttack(unitId)
+    setShowSpecialPanel(false)
+    // 特殊攻撃選択後、GameBoardでクリック待ち状態になる
+  }
+
+  const handleCellClick = (position: Position) => {
+    if (selectedSpecialAttack && onSpecialAttack) {
+      // 特殊攻撃実行
+      onSpecialAttack(selectedSpecialAttack, position)
+      setSelectedSpecialAttack(null)
+    } else {
+      // 通常攻撃
+      onAttack(position)
     }
   }
 
@@ -112,55 +114,34 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
             playerField={playerField}
             enemyField={enemyField}
             currentTurn={currentTurn}
-            onAttack={onAttack}
+            onAttack={handleCellClick}
           />
         </motion.div>
 
-        {/* アクションバー */}
-        {isPlayerTurn && (
+        {/* 特殊攻撃ボタン */}
+        {isPlayerTurn && availableSpecialAttacks.length > 0 && (
           <motion.div
-            className="flex flex-wrap gap-4 justify-center"
+            className="flex justify-center mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            {/* 通常攻撃ボタン */}
-            <AttackButton
-              onClick={handleAttackButtonClick}
-              isActive={attackMode === 'normal'}
-            />
-
-            {/* 特殊攻撃ボタン */}
-            {availableSpecialAttacks.length > 0 && (
-              <motion.button
-                onClick={handleSpecialButtonClick}
-                className={`
-                  px-6 py-3 rounded-lg font-bold text-lg
-                  transition-all duration-200
-                  ${
-                    attackMode === 'special'
-                      ? 'bg-[#9B59B6] ring-2 ring-[#9B59B6] text-white'
-                      : 'bg-[#8E44AD] hover:bg-[#9B59B6] text-white'
-                  }
-                `}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                特殊攻撃
-              </motion.button>
-            )}
-
-            {/* ターン終了ボタン */}
-            {onEndTurn && (
-              <motion.button
-                onClick={onEndTurn}
-                className="px-6 py-3 rounded-lg font-bold text-lg bg-[#5D6D7E] hover:bg-[#7F8C8D] text-white transition-all duration-200"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                ターン終了
-              </motion.button>
-            )}
+            <motion.button
+              onClick={handleSpecialButtonClick}
+              className={`
+                px-8 py-4 rounded-lg font-bold text-xl
+                transition-all duration-200
+                ${
+                  selectedSpecialAttack
+                    ? 'bg-[#9B59B6] ring-2 ring-[#9B59B6] text-white shadow-lg'
+                    : 'bg-[#8E44AD] hover:bg-[#9B59B6] text-white'
+                }
+              `}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {selectedSpecialAttack ? '特殊攻撃選択中...' : 'スキル'}
+            </motion.button>
           </motion.div>
         )}
 
