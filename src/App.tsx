@@ -117,13 +117,6 @@ function App() {
         spCost: 25,
         canUse: battleState.playerStats.sp >= 25,
       },
-      {
-        unitId: 'scan',
-        name: '🔍 索敵',
-        description: '5x5範囲を明らかにする',
-        spCost: 20,
-        canUse: battleState.playerStats.sp >= 20,
-      },
     ],
     [battleState.playerStats.sp]
   )
@@ -350,29 +343,6 @@ function App() {
           }
           // MISSの場合のみカウント（強力な一撃は3倍ダメージ）
           if (!isHit) missCount = 3
-        }
-        break
-      }
-      case 'scan': {
-        // 5x5範囲索敵（ダメージなし）
-        for (let dy = -2; dy <= 2; dy++) {
-          for (let dx = -2; dx <= 2; dx++) {
-            const targetY = position.y + dy
-            const targetX = position.x + dx
-            if (
-              targetY >= 0 &&
-              targetY < 10 &&
-              targetX >= 0 &&
-              targetX < 10 &&
-              newCells[targetY][targetX].state === CellState.UNEXPLORED
-            ) {
-              const isHit = !!newCells[targetY][targetX].unitId
-              newCells[targetY][targetX] = {
-                ...newCells[targetY][targetX],
-                state: isHit ? CellState.HIT : CellState.MISS,
-              }
-            }
-          }
         }
         break
       }
